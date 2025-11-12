@@ -1,0 +1,260 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define MAX 1000
+struct Book {
+    int id;
+    char title[100];
+    char author[100];
+    int year;
+};
+struct Book library[MAX];
+int count = 0;
+// Function prototypes
+void addBook();
+void displayBooks();
+void searchBook();
+void sortBooks();
+void bubbleSortByTitle();
+void quickSortByYear(int low, int high);
+int partition(int low, int high);
+void swap(struct Book *a, struct Book *b);
+int main() {
+    int choice;
+    do {
+        printf("\n===== LIBRARY CATALOGUE SYSTEM =====\n");
+        printf("1. Add Book\n");
+        printf("2. Display All Books\n");
+        printf("3. Search Book\n");
+        printf("4. Sort Books\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+        switch (choice) {
+            case 1:
+                addBook();
+                break;
+            case 2:
+                displayBooks();
+                break;
+            case 3:
+
+                searchBook();
+
+                break;
+
+            case 4:
+
+                sortBooks();
+
+                break;
+
+            case 5:
+
+                printf("Exiting program...\n");
+
+                break;
+
+            default:
+
+                printf("Invalid choice!\n");
+
+        }
+
+    } while (choice != 5);
+
+
+
+    return 0;
+
+}
+
+
+
+void addBook() {
+    if (count >= MAX) {
+        printf("Library is full!\n");
+        return;
+    }
+    struct Book b;
+    printf("Enter Book ID: ");
+    scanf("%d", &b.id);
+    getchar();
+    printf("Enter Book Title: ");
+    fgets(b.title, sizeof(b.title), stdin);
+    b.title[strcspn(b.title, "\n")] = '\0';
+    printf("Enter Author Name: ");
+    fgets(b.author, sizeof(b.author), stdin);
+    b.author[strcspn(b.author, "\n")] = '\0';
+    printf("Enter Publication Year: ");
+    scanf("%d", &b.year);
+    library[count++] = b;
+
+    printf("✅ Book added successfully!\n");
+
+}
+void displayBooks() {
+
+    if (count == 0) {
+
+        printf("No books in the library.\n");
+
+        return;
+
+    }
+    printf("\n%-5s %-30s %-20s %-5s\n", "ID", "Title", "Author", "Year");
+
+    printf("--------------------------------------------------------------\n");
+
+    for (int i = 0; i < count; i++) {
+
+        printf("%-5d %-30s %-20s %-5d\n",
+
+               library[i].id, library[i].title, library[i].author, library[i].year);
+
+    }
+
+}
+void searchBook() {
+
+    int choice;
+
+    printf("\nSearch by:\n1. ID\n2. Title\nEnter choice: ");
+
+    scanf("%d", &choice);
+
+    getchar();
+
+
+
+    if (choice == 1) {
+
+        int id;
+
+        printf("Enter Book ID: ");
+
+        scanf("%d", &id);
+
+
+
+        for (int i = 0; i < count; i++) {
+
+            if (library[i].id == id) {
+
+                printf("\nBook Found:\n");
+
+                printf("ID: %d\nTitle: %s\nAuthor: %s\nYear: %d\n",
+
+                       library[i].id, library[i].title, library[i].author, library[i].year);
+
+                return;
+
+            }
+
+        }
+
+        printf("Book not found.\n");
+
+
+
+    } else if (choice == 2) {
+
+        char title[100];
+
+        printf("Enter Book Title: ");
+
+        fgets(title, sizeof(title), stdin);
+
+        title[strcspn(title, "\n")] = '\0';
+
+
+
+        for (int i = 0; i < count; i++) {
+
+            if (strcmp(library[i].title, title) == 0) { // Windows-safe case-insensitive compare
+
+                printf("\nBook Found:\n");
+
+                printf("ID: %d\nTitle: %s\nAuthor: %s\nYear: %d\n",
+
+                       library[i].id, library[i].title, library[i].author, library[i].year);
+
+                return;
+
+            }
+
+        }
+
+        printf("Book not found.\n");
+
+    } else {
+
+        printf("Invalid choice!\n");
+
+    }
+
+}
+
+
+
+void sortBooks() {
+
+    int choice;
+
+    printf("\nSort Books By:\n1. Title (Bubble Sort)\n2. Year (Quick Sort)\nEnter choice: ");
+
+    scanf("%d", &choice);
+    if (choice == 1) {
+
+        bubbleSortByTitle();
+
+        printf("✅ Books sorted by title successfully!\n");
+
+    } else if (choice == 2) {
+
+        quickSortByYear(0, count - 1);
+
+        printf("✅ Books sorted by year successfully!\n");
+
+    } else {
+
+        printf("Invalid choice!\n");
+
+    }
+
+}
+void bubbleSortByTitle() {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (strcmp(library[j].title, library[j + 1].title) > 0) {
+                swap(&library[j], &library[j + 1]);
+            }
+        }
+    }
+}
+void quickSortByYear(int low, int high) {
+    if (low < high) {
+        int pi = partition(low, high);
+        quickSortByYear(low, pi - 1);
+        quickSortByYear(pi + 1, high);
+    }
+}
+int partition(int low, int high) {
+    int pivot = library[high].year;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (library[j].year < pivot) {
+            i++;
+            swap(&library[i], &library[j]);
+        }
+    }
+    swap(&library[i + 1], &library[high]);
+    return i + 1;
+}
+void swap(struct Book *a, struct Book *b) {
+    struct Book temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
